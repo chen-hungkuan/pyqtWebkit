@@ -30,6 +30,24 @@ class PyAgent(QObject):
     def shellExecute(self, pCmd, pParm):
         os.popen('%s %s'%(pCmd, pParm))
         
+    @pyqtSlot(str)
+    def printPage(self, pUrl):
+        self.web = QWebView()
+        self.web.setUrl(QUrl(pUrl))
+        self.web.loadFinished.connect(self.printPage_ready)
+        """
+        dialog = QPrintDialog(printer)
+        if (dialog.exec_() == QDialog.Accepted):
+            web.page().mainFrame().print_(printer)
+        """
+        
+    def printPage_ready(self):
+        printer = QPrinter()
+        printer.setPageMargins(5,5,5,5,QPrinter.Millimeter)
+        preview = QPrintPreviewDialog(printer)
+        preview.paintRequested.connect(self.web.page().mainFrame().print_)
+        preview.exec_()
+                    
     def _pyVersion(self):
         return sys.version
 
